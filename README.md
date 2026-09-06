@@ -6,9 +6,25 @@ contexts, i.e. HTTPS or literally `localhost`; a LAN IP like `192.168.x.x` over 
 
 ## Structure
 
-Two separate pages now, on purpose: the link you'd send to a real visitor only captures
-their own data and shows them a plain status — it never shows anyone else's entries. The
-table of everyone's data lives on a separate, token-gated page for you (the operator) only.
+Two separate pages now, on purpose: the link you'd send to a real visitor shows an explicit
+consent screen first, listing every signal that will be requested and why — nothing is
+collected until they click through. After capture, the visitor's page shows them exactly
+what was collected about them (same data the operator dashboard sees for that entry). No
+signal is gathered, and no request is sent to `/api/log`, if the visitor declines. The
+table of everyone's (consenting) visits lives on a separate, token-gated page for you (the
+operator) only.
+
+Signals collected, once consented:
+- Public IP + city-level IP-based location (third-party lookup, approximate)
+- Precise GPS coordinates — only if the visitor grants the browser permission prompt;
+  declining/timing out is a normal outcome, not something the app works around
+- Browser, OS, screen resolution, viewport size, timezone, language, device memory (GB,
+  where the browser exposes it) and CPU core count (rough hardware class, not identity)
+
+The timezone/language-vs-IP-country comparison shown on the visitor's own results panel is
+a simple illustration of the kind of VPN/impossible-travel heuristic a real fraud system
+runs — it's shown to the visitor themselves as part of the demo, not used to deanonymize
+them silently.
 
 ```
 index.html                     # visitor-facing page (served at /) — captures + logs, shows only "Done"
@@ -82,6 +98,11 @@ fire this time.
   doesn't grow unbounded on the free tier.
 - `api/entries.js` currently has no auth — anyone with the URL can read all logged entries.
   Fine for a private test deploy; add auth before sharing the link or using real data.
-- See the parent project's README for the fuller list of things to harden before this logic
-  moves into the actual banking app (consent-before-prompt, encryption at rest, rate limiting,
-  proper IP geolocation provider, etc.) — all of that still applies here.
+- Consent-before-prompt is now implemented client-side (see `capture.js`). Still to harden
+  before this logic moves into an actual banking app: encryption at rest, rate limiting,
+  a proper (paid, higher-accuracy) IP geolocation provider, and a real consent/audit log
+  rather than trusting the client's word that consent was given — a production version
+  should have the server log a consent timestamp too, not just the client UI gating it.
+- This is a demo/portfolio prototype. It should not be pointed at real third parties who
+  haven't agreed to be part of a security demo — even with the consent screen, only use it
+  on your own devices/browsers or with people who know what it's for.

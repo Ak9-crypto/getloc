@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Session Signal Log</title>
+<title>Device & Location Signal Demo</title>
 <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -16,17 +16,47 @@
     </header>
 
     <section class="notice">
-      <strong>Prototype — not yet consent-compliant.</strong>
-      This test build captures your public IP, IP-based and device-reported location, and
-      device attributes on this visit, for evaluating a fraud-detection signal for a banking
-      application. Before production use this needs an explicit, plain-language consent
-      notice shown <em>before</em> the location prompt fires, per GDPR/PSD2-style requirements.
+      <strong>Fraud-detection signal demo.</strong>
+      This is a prototype of the kind of signals a banking app might check during a
+      logged-in session (impossible-travel, VPN mismatch, new-device checks). Nothing is
+      collected until you explicitly consent below, and everything collected about you is
+      shown back to you on this page — nothing is hidden in an admin-only view.
     </section>
 
-    <div class="capture-panel">
+    <!-- Consent gate: shown first, nothing runs until the user opts in -->
+    <div id="consent-panel" class="capture-panel consent-panel">
+      <div class="consent-text">
+        <p><strong>Before you continue, here's exactly what this demo will try to collect:</strong></p>
+        <ul class="consent-list">
+          <li><strong>Your public IP</strong> and an approximate IP-based location (city-level, from a third-party lookup — not precise)</li>
+          <li><strong>Precise GPS location</strong> — only if you grant your browser's location permission when prompted; you can deny this and the demo still works using IP-based location only</li>
+          <li><strong>Browser/device info</strong>: browser, OS, screen resolution & viewport size, timezone, language, device memory & CPU core count (rough hardware class, not identity)</li>
+        </ul>
+        <p class="muted small">
+          Timezone and language are compared against the IP-based country as an example of a
+          VPN/location-mismatch heuristic — the kind of check a fraud system runs, shown here
+          so you can see how it works, not to identify you personally.
+        </p>
+      </div>
+      <div class="consent-actions">
+        <button id="consent-yes" class="btn-primary">Continue &amp; show me what's collected</button>
+        <button id="consent-no" class="btn-secondary">Decline</button>
+      </div>
+    </div>
+
+    <!-- Live capture status, shown only after consent -->
+    <div id="capture-panel" class="capture-panel" style="display:none">
       <span id="status-dot" class="dot"></span>
       <span id="status" class="capture-status">Initializing…</span>
     </div>
+
+    <!-- Declined state -->
+    <div id="declined-panel" class="capture-panel" style="display:none">
+      <span class="capture-status">Nothing was collected. You can close this page.</span>
+    </div>
+
+    <!-- Transparent results, shown to the visitor themselves -->
+    <div id="results-panel" style="display:none"></div>
   </div>
 
   <script src="/capture.js"></script>

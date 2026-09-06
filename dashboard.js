@@ -40,6 +40,11 @@ async function loadEntries(token) {
       <td>${e.device.browser}</td>
       <td>${e.device.os}</td>
       <td>${e.device.deviceType}</td>
+      <td class="mono">${e.device.screen || '—'}</td>
+      <td class="mono">${e.device.viewport || '—'}</td>
+      <td class="mono">${e.device.timezone || '—'}</td>
+      <td>${e.device.language || '—'}</td>
+      <td class="mono">${e.device.deviceMemory ? e.device.deviceMemory + 'GB' : '—'} / ${e.device.hardwareConcurrency || '—'}</td>
     </tr>`
     )
     .join('');
